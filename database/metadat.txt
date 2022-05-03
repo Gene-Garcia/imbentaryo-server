@@ -1,0 +1,8 @@
+GROUP
+GroupId | Group Name | Remarks
+
+ITEM
+ItemId | Name | UnitPrice | Remarks | GroupId | Created
+
+INVENTORY
+InventoryId | ItemID | quantity | updated
