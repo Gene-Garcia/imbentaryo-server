@@ -1,3 +1,5 @@
+const { runSelectOne } = require("../database/databaseContext");
+
 /*
  * Generates a key with a combination of shuffled
  * text with current date time in milliseconds
@@ -34,4 +36,20 @@ const shuffle = (text) => {
     .join("");
 
   return shuffled;
+};
+
+/*
+ * Makes database request just to validate if there is
+ * record in the database
+ */
+exports.validateKey = async (key, idColumnName, table) => {
+  const tbl = table.replace(/\s/g, "");
+  const col = idColumnName.replace(/\s/g, "");
+
+  const result = await runSelectOne(
+    `SELECT ${col} FROM ${tbl} WHERE ${col} = (?)`,
+    [key]
+  );
+
+  return result ? true : false;
 };
