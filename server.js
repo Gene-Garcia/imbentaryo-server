@@ -12,6 +12,8 @@ app.use(express.json());
 app.use("/v1/item", require("./routes/item"));
 app.use("/v1/inventory", require("./routes/inventory"));
 app.use("/v1/group", require("./routes/group"));
+// test
+app.use("/v1/test", require("./routes/test"));
 
 const PORT = 3000;
 
