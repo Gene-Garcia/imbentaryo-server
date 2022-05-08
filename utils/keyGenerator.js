@@ -41,6 +41,8 @@ const shuffle = (text) => {
 /*
  * Makes database request just to validate if there is
  * record in the database
+ *
+ * @returns true if not unique, false if unique
  */
 exports.validateKey = async (key, idColumnName, table) => {
   const tbl = table.replace(/\s/g, "");
