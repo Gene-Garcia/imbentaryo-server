@@ -206,10 +206,93 @@ exports.insertItems = async (req, res) => {
   }
 };
 
-exports.insertInventory = async () => {
-  const itemIds = [];
-
+exports.insertInventory = async (req, res) => {
   try {
+    let inventories = [
+      {
+        ID: "",
+        ITEM_ID: "5go5421i5642e5lht11c6",
+        QTY: Math.floor(Math.random() * 500) + 1,
+        UPDATED: new Date(
+          2022,
+          Math.floor(Math.random() * 12),
+          Math.floor(Math.random() * 31) + 1
+        ),
+      },
+      {
+        ID: "",
+        ITEM_ID: "2511551114a066s42qs1u",
+        QTY: Math.floor(Math.random() * 500) + 1,
+        UPDATED: new Date(
+          2022,
+          Math.floor(Math.random() * 12),
+          Math.floor(Math.random() * 31) + 1
+        ),
+      },
+      {
+        ID: "",
+        ITEM_ID: "15s06521215ne6p4oph3r",
+        QTY: Math.floor(Math.random() * 500) + 1,
+        UPDATED: new Date(
+          2022,
+          Math.floor(Math.random() * 12),
+          Math.floor(Math.random() * 31) + 1
+        ),
+      },
+      {
+        ID: "",
+        ITEM_ID: "ig551ma261a2ss54u0561",
+        QTY: Math.floor(Math.random() * 500) + 1,
+        UPDATED: new Date(
+          2022,
+          Math.floor(Math.random() * 12),
+          Math.floor(Math.random() * 31) + 1
+        ),
+      },
+      {
+        ID: "",
+        ITEM_ID: "115252uos5g6n0m1sa462",
+        QTY: Math.floor(Math.random() * 500) + 1,
+        UPDATED: new Date(
+          2022,
+          Math.floor(Math.random() * 12),
+          Math.floor(Math.random() * 31) + 1
+        ),
+      },
+    ];
+
+    // assign ids
+    for (let i = 0; i < inventories.length; i++) {
+      let tempId;
+
+      while (true) {
+        tempId = await generateKey(
+          inventories[i].ITEM_ID + inventories[i].UPDATED
+        );
+
+        const isPresent = await validateKey(
+          tempId,
+          "inventory_id",
+          "inventory"
+        );
+        if (!isPresent) break;
+      }
+
+      inventories[i].ID = tempId;
+    }
+
+    // build sql command
+    let arrayParams = [];
+    inventories.forEach(({ ID, ITEM_ID, QTY, UPDATED }) => {
+      arrayParams.push([ID, ITEM_ID, QTY, UPDATED]);
+    });
+
+    const insertRes = await runMultipleQuery(
+      `INSERT INTO inventory(inventory_id, item_Id, quantity, updated) VALUES(?, ?, ?, ?)`,
+      arrayParams
+    );
+
+    return res.status(httpStatus.CREATED).json({ insertRes });
   } catch (error) {
     return res
       .status(httpStatus.INTERNAL_SERVER_ERROR)
