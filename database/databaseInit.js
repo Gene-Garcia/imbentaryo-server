@@ -1,4 +1,3 @@
-const res = require("express/lib/response");
 const { httpStatus } = require("../constants/status");
 const { generateKey, validateKey } = require("../utils/keyGenerator");
 const { runQuery, runMultipleQuery } = require("./databaseContext");
