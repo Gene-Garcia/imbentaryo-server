@@ -12,11 +12,11 @@ app.use(express.json());
 app.use("/v1/item", require("./routes/item"));
 app.use("/v1/inventory", require("./routes/inventory"));
 app.use("/v1/group", require("./routes/group"));
-app.use("/v1/database", require("./routes/database"))
+app.use("/v1/database", require("./routes/database"));
 // test
 app.use("/v1/test", require("./routes/test"));
 
-const PORT = 3000;
+const PORT = 3001;
 
 /* Binds this server to a connection based on the host and port */
 app.listen(PORT, () =>
