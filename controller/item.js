@@ -12,9 +12,11 @@ exports.test = async (req, res) => {
  */
 exports.insertItem = async (req, res) => {
   try {
-    const { name, unit_price, remarks, group_id } = req.body;
+    console.log(req.body);
 
-    if (!name || !unit_price || !group_id)
+    const { name, unit_price, stock, remarks, group_id } = req.body;
+
+    if (!name || unit_price < 0 || !group_id)
       return res.status(httpStatus.NOT_ALLOWED).json({
         message: "Incomplete item information. Try again, thank you.",
       });
@@ -53,9 +55,47 @@ exports.insertItem = async (req, res) => {
         .status(httpStatus.INTERNAL_SERVER_ERROR)
         .json({ message: "Unable to add new item. Try again, thank you." });
 
-    return res
-      .status(httpStatus.CREATED)
-      .json({ message: `Item ${name} has been added successfully.` });
+    // if there is stock count upsert inventory
+    if (stock >= 0) {
+      let inventory_id;
+      while (true) {
+        inventory_id = await generateKey(name);
+
+        const isPresent = await validateKey(
+          inventory_id,
+          "inventory_id",
+          "inventory"
+        );
+        if (!isPresent) break;
+      }
+
+      // create - always create even if this a 1-to-1 relationship
+      // if duplicates are created then that is an issue of error
+      const isSuccessInventory = await runQuery(
+        `
+        INSERT INTO inventory(inventory_id, item_id, quantity, updated)
+        VALUES (?, ?, ?, ?)
+        `,
+        [inventory_id, item_id, stock, Date.now()]
+      );
+
+      if (!isSuccessInventory)
+        return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+          message:
+            "Item " +
+            name +
+            " has been added but unable to add inventory record for " +
+            name +
+            ". You may select the item to update its inventory.",
+        });
+      else
+        return res.status(httpStatus.CREATED).json({
+          message: `Item ${name} has been added successfully with an inventory record.`,
+        });
+    } else
+      return res.status(httpStatus.CREATED).json({
+        message: `Item ${name} has been added successfully without an inventory record.`,
+      });
   } catch (e) {
     console.error(e);
     return res
