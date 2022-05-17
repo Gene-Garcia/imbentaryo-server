@@ -17,6 +17,8 @@ exports.insertGroup = async (req, res) => {};
  */
 exports.getGroups = async (req, res) => {
   try {
+    console.log("Get Groups");
+
     const groups = await runSelectMany(
       `SELECT group_id, group_name FROM item_group`,
       []
