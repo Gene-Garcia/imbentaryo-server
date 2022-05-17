@@ -2,6 +2,7 @@
 const router = require("express").Router();
 
 // controllers
+const { getGroups } = require("../controller/group");
 
 // routes
 
@@ -9,7 +10,7 @@ const router = require("express").Router();
 router.post("add");
 
 // gets all groups
-router.get("all");
+router.get("/all", getGroups);
 
 // gets all items of a group by its id
 router.get("/:groupId/items");

@@ -1,4 +1,5 @@
 const { httpStatus } = require("../constants/status");
+const { runSelectMany } = require("../database/databaseContext");
 
 exports.test = async (req, res) => {
   return res.status(httpStatus.OK);
@@ -14,7 +15,21 @@ exports.insertGroup = async (req, res) => {};
  * GET
  * gets all available groups
  */
-exports.getGroups = async (req, res) => {};
+exports.getGroups = async (req, res) => {
+  try {
+    const groups = await runSelectMany(
+      `SELECT group_id, group_name FROM item_group`,
+      []
+    );
+
+    return res.status(httpStatus.OK).json([...groups]);
+  } catch (error) {
+    console.error(error);
+    return res
+      .status(httpStatus.INTERNAL_SERVER_ERROR)
+      .json({ error: error.message });
+  }
+};
 
 /*
  * GET
