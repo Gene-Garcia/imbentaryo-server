@@ -2,11 +2,12 @@
 const router = require("express").Router();
 
 // controllers
+const { insertItem } = require("../controller/item");
 
 // routes
 
 // add item with information, sometimes with inventory
-router.post("/add");
+router.post("/add", insertItem);
 
 // update details of an item
 router.patch("/update");
