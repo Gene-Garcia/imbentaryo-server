@@ -1,5 +1,9 @@
 const { httpStatus } = require("../constants/status");
-const { runQuery, runSelectOne } = require("../database/databaseContext");
+const {
+  runQuery,
+  runSelectOne,
+  runSelectMany,
+} = require("../database/databaseContext");
 const { generateKey, validateKey } = require("../utils/keyGenerator");
 
 exports.test = async (req, res) => {
@@ -109,7 +113,25 @@ exports.insertItem = async (req, res) => {
  * gets all items.
  * it can include item_group and inventory info if stated
  */
-exports.getItems = async (req, res) => {};
+exports.getItems = async (req, res) => {
+  try {
+    const items = await runSelectMany(
+      ` 
+        SELECT item.item_id, name, quantity, updated 
+        FROM item
+        INNER JOIN inventory
+            ON item.item_id = inventory.item_id
+      `,
+      []
+    );
+
+    return res.status(httpStatus.OK).json([...items]);
+  } catch (e) {
+    return res
+      .status(httpStatus.INTERNAL_SERVER_ERROR)
+      .json({ message: e.message });
+  }
+};
 
 /*
  * GET

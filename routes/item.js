@@ -2,7 +2,7 @@
 const router = require("express").Router();
 
 // controllers
-const { insertItem } = require("../controller/item");
+const { insertItem, getItems } = require("../controller/item");
 
 // routes
 
@@ -16,7 +16,7 @@ router.patch("/update");
 router.get("/all/:itemId");
 
 // get all available items
-router.get("all");
+router.get("/all", getItems);
 
 // export
 module.exports = router;
