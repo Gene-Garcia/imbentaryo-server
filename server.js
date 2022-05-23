@@ -1,3 +1,5 @@
+require("dotenv").config();
+
 // Express - backend web framework to handle http requests and responses
 // considered as de facto standard
 const express = require("express");
@@ -16,7 +18,7 @@ app.use("/v1/database", require("./routes/database"));
 // test
 app.use("/v1/test", require("./routes/test"));
 
-const PORT = 3001;
+const PORT = process.env.PORT;
 
 /* Binds this server to a connection based on the host and port */
 app.listen(PORT, () =>
