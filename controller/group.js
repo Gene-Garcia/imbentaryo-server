@@ -13,10 +13,10 @@ exports.test = async (req, res) => {
 exports.insertGroup = async (req, res) => {
   console.log(req.body);
   try {
-    const { name, remarks } = req.body;
+    const { group_name: name, remarks } = req.body;
 
     if (!name)
-      res
+      return res
         .status(httpStatus.NOT_ALLOWED)
         .json({ error: "Item group name is required" });
 
