@@ -2,12 +2,12 @@
 const router = require("express").Router();
 
 // controllers
-const { getGroups } = require("../controller/group");
+const { getGroups, insertGroup } = require("../controller/group");
 
 // routes
 
 // item group and some details
-router.post("add");
+router.post("/add", insertGroup);
 
 // gets all groups
 router.get("/all", getGroups);
