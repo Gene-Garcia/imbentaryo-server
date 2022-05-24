@@ -138,4 +138,39 @@ exports.getItems = async (req, res) => {
  * gets record of item_id
  * it can include item_group and inventory info if stated
  */
-exports.getItem = async (req, res) => {};
+exports.getItem = async (req, res) => {
+  //ig551ma261a2ss54u0561
+
+  try {
+    const { itemId } = req.params;
+
+    if (!itemId)
+      return res
+        .status(httpStatus.NOT_ALLOWED)
+        .json({ message: "Item Id is missing. Try again." });
+
+    const inventory = await runSelectOne(
+      `
+      SELECT item.item_id, item.name, group_name, item.remarks, item.group_id, inventory_id, quantity, updated, date_added
+      FROM item
+      INNER JOIN inventory 
+        ON item.item_id = inventory.item_id
+      INNER JOIN item_group
+        ON item.group_id = item_group.group_id
+      WHERE item.item_id = ?
+      `,
+      [itemId]
+    );
+
+    if (!inventory)
+      return res
+        .status(httpStatus.NOT_FOUND)
+        .json({ message: "Item not found. Try again." });
+
+    return res.status(httpStatus.OK).json({ ...inventory });
+  } catch (e) {
+    return res
+      .status(httpStatus.INTERNAL_SERVER_ERROR)
+      .json({ message: error.message });
+  }
+};

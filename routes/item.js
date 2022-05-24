@@ -2,7 +2,7 @@
 const router = require("express").Router();
 
 // controllers
-const { insertItem, getItems } = require("../controller/item");
+const { insertItem, getItems, getItem } = require("../controller/item");
 
 // routes
 
@@ -13,7 +13,7 @@ router.post("/add", insertItem);
 router.patch("/update");
 
 // gets item details and inventory information
-router.get("/all/:itemId");
+router.get("/one/:itemId", getItem);
 
 // get all available items
 router.get("/all", getItems);
