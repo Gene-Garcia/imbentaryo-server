@@ -151,12 +151,18 @@ exports.getItem = async (req, res) => {
 
     const inventory = await runSelectOne(
       `
-      SELECT item.item_id, item.name, group_name, item.remarks, item.group_id, inventory_id, quantity, updated, date_added
+      SELECT 
+        item.item_id AS item_id, 
+        item.group_id AS group_id, 
+        inventory_id, 
+        item.name as name, group_name, item.remarks as remarks, 
+        quantity, unit_price, 
+        updated, date_added
       FROM item
-      INNER JOIN inventory 
-        ON item.item_id = inventory.item_id
       INNER JOIN item_group
         ON item.group_id = item_group.group_id
+      LEFT JOIN inventory 
+        ON item.item_id = inventory.item_id
       WHERE item.item_id = ?
       `,
       [itemId]
