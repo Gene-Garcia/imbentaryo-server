@@ -119,7 +119,7 @@ exports.getItems = async (req, res) => {
       ` 
         SELECT item.item_id, name, quantity, updated 
         FROM item
-        INNER JOIN inventory
+        LEFT JOIN inventory
             ON item.item_id = inventory.item_id
       `,
       []
