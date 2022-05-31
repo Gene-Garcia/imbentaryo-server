@@ -118,6 +118,11 @@ exports.getItems = async (req, res) => {
     // optional paramater
     const { itemGroupId } = req.params;
 
+    if (!itemGroupId)
+      return res
+        .status(httpStatus.NOT_ALLOWED)
+        .json({ message: "Item group Id is missing" });
+
     const items = await runSelectMany(
       ` 
         SELECT item.item_id, name, quantity, updated 
