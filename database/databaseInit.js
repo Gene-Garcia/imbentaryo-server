@@ -70,7 +70,7 @@ exports.insertItems = async (req, res) => {
       {
         ID: "",
         NAME: "Logitech Ergonomic",
-        GROUP_ID: "2d4k951o3961ae5r63y4b",
+        GROUP_ID: "d3y250a1610b49orek521",
         UNIT_PRICE: Math.floor(Math.random() * 905001) + 5000,
         DATE_ADDED: new Date(
           2022,
@@ -81,7 +81,7 @@ exports.insertItems = async (req, res) => {
       {
         ID: "",
         NAME: "RAKK Ilis RGB Mechanical Keyboard",
-        GROUP_ID: "2d4k951o3961ae5r63y4b",
+        GROUP_ID: "d3y250a1610b49orek521",
         UNIT_PRICE: Math.floor(Math.random() * 905001) + 5000,
         DATE_ADDED: new Date(
           2022,
@@ -93,7 +93,7 @@ exports.insertItems = async (req, res) => {
       {
         ID: "",
         NAME: "A4Tech Wired Optical Mouse",
-        GROUP_ID: "3u165moo93usm41e69502",
+        GROUP_ID: "u145s12muo2e0m5o63402",
         UNIT_PRICE: Math.floor(Math.random() * 905001) + 5000,
         DATE_ADDED: new Date(
           2022,
@@ -104,7 +104,7 @@ exports.insertItems = async (req, res) => {
       {
         ID: "",
         NAME: "Razer Wireless Gaming RGB Mouse",
-        GROUP_ID: "3u165moo93usm41e69502",
+        GROUP_ID: "u145s12muo2e0m5o63402",
         UNIT_PRICE: Math.floor(Math.random() * 905001) + 5000,
         DATE_ADDED: new Date(
           2022,
@@ -116,7 +116,7 @@ exports.insertItems = async (req, res) => {
       {
         ID: "",
         NAME: 'Mi 1C 23" Monitor',
-        GROUP_ID: "m1o3o6ni946t315sr1952",
+        GROUP_ID: "304mr4s0o53t621o21n5i",
         UNIT_PRICE: Math.floor(Math.random() * 905001) + 5000,
         DATE_ADDED: new Date(
           2022,
@@ -127,7 +127,7 @@ exports.insertItems = async (req, res) => {
       {
         ID: "",
         NAME: 'Asus 1Q412 22" Thin Bezzel Display',
-        GROUP_ID: "m1o3o6ni946t315sr1952",
+        GROUP_ID: "304mr4s0o53t621o21n5i",
         UNIT_PRICE: Math.floor(Math.random() * 905001) + 5000,
         DATE_ADDED: new Date(
           2022,
@@ -139,7 +139,7 @@ exports.insertItems = async (req, res) => {
       {
         ID: "",
         NAME: "Samsung OLED Thin Curved TV",
-        GROUP_ID: "i51v2e63l9ie6ts915432",
+        GROUP_ID: "3l45es1iiv4042t2e0561",
         UNIT_PRICE: Math.floor(Math.random() * 905001) + 5000,
         DATE_ADDED: new Date(
           2022,
@@ -151,7 +151,7 @@ exports.insertItems = async (req, res) => {
       {
         ID: "",
         NAME: "HP Personal Computer Desktop Set",
-        GROUP_ID: "sys95u2435336t1en1m69",
+        GROUP_ID: "ms6tn654u3y120401es52",
         UNIT_PRICE: Math.floor(Math.random() * 905001) + 5000,
         DATE_ADDED: new Date(
           2022,
@@ -162,7 +162,7 @@ exports.insertItems = async (req, res) => {
       {
         ID: "",
         NAME: "Asus Gaming RGB Destop",
-        GROUP_ID: "sys95u2435336t1en1m69",
+        GROUP_ID: "ms6tn654u3y120401es52",
         UNIT_PRICE: Math.floor(Math.random() * 905001) + 5000,
         DATE_ADDED: new Date(
           2022,
@@ -210,7 +210,7 @@ exports.insertInventory = async (req, res) => {
     let inventories = [
       {
         ID: "",
-        ITEM_ID: "5go5421i5642e5lht11c6",
+        ITEM_ID: "ei71o034t07l641g16h5c",
         QTY: Math.floor(Math.random() * 500) + 1,
         UPDATED: new Date(
           2022,
@@ -220,7 +220,7 @@ exports.insertInventory = async (req, res) => {
       },
       {
         ID: "",
-        ITEM_ID: "2511551114a066s42qs1u",
+        ITEM_ID: "z54w120r011eari34767r",
         QTY: Math.floor(Math.random() * 500) + 1,
         UPDATED: new Date(
           2022,
@@ -230,7 +230,7 @@ exports.insertInventory = async (req, res) => {
       },
       {
         ID: "",
-        ITEM_ID: "15s06521215ne6p4oph3r",
+        ITEM_ID: "1434s1u4015s167a0q167",
         QTY: Math.floor(Math.random() * 500) + 1,
         UPDATED: new Date(
           2022,
@@ -240,7 +240,7 @@ exports.insertInventory = async (req, res) => {
       },
       {
         ID: "",
-        ITEM_ID: "ig551ma261a2ss54u0561",
+        ITEM_ID: "as74a1u0igm6301194s75",
         QTY: Math.floor(Math.random() * 500) + 1,
         UPDATED: new Date(
           2022,
@@ -250,7 +250,7 @@ exports.insertInventory = async (req, res) => {
       },
       {
         ID: "",
-        ITEM_ID: "115252uos5g6n0m1sa462",
+        ITEM_ID: "3401raksk7iil74001615",
         QTY: Math.floor(Math.random() * 500) + 1,
         UPDATED: new Date(
           2022,
