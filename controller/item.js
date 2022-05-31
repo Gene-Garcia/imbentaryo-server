@@ -115,6 +115,9 @@ exports.insertItem = async (req, res) => {
  */
 exports.getItems = async (req, res) => {
   try {
+    // optional paramater
+    const { itemGroupId } = req.params;
+
     const items = await runSelectMany(
       ` 
         SELECT item.item_id, name, quantity, updated 
@@ -123,6 +126,34 @@ exports.getItems = async (req, res) => {
             ON item.item_id = inventory.item_id
       `,
       []
+    );
+
+    return res.status(httpStatus.OK).json([...items]);
+  } catch (e) {
+    return res
+      .status(httpStatus.INTERNAL_SERVER_ERROR)
+      .json({ message: e.message });
+  }
+};
+
+/*
+ * GET
+ * gets all items that belongs to a specific
+ * item group
+ */
+exports.getItemsOfGroup = async (req, res) => {
+  try {
+    const { itemGroupId } = req.params;
+
+    const items = await runSelectMany(
+      ` 
+        SELECT item.item_id, name, quantity, updated, item.group_id
+        FROM item
+        LEFT JOIN inventory
+            ON item.item_id = inventory.item_id
+        WHERE item.group_id = ?
+      `,
+      [itemGroupId]
     );
 
     return res.status(httpStatus.OK).json([...items]);

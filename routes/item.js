@@ -2,7 +2,12 @@
 const router = require("express").Router();
 
 // controllers
-const { insertItem, getItems, getItem } = require("../controller/item");
+const {
+  insertItem,
+  getItems,
+  getItem,
+  getItemsOfGroup,
+} = require("../controller/item");
 
 // routes
 
@@ -17,6 +22,9 @@ router.get("/one/:itemId", getItem);
 
 // get all available items
 router.get("/all", getItems);
+
+// get all items of an item group
+router.get("/all/group/:itemGroupId", getItemsOfGroup);
 
 // export
 module.exports = router;
