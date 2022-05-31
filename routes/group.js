@@ -2,7 +2,7 @@
 const router = require("express").Router();
 
 // controllers
-const { getGroups, insertGroup } = require("../controller/group");
+const { getGroups, insertGroup, getGroup } = require("../controller/group");
 
 // routes
 
@@ -12,8 +12,8 @@ router.post("/add", insertGroup);
 // gets all groups
 router.get("/all", getGroups);
 
-// gets all items of a group by its id
-router.get("/:groupId/items");
+// gets item group details
+router.get("/one/:groupId", getGroup);
 
 // deletes a group
 router.delete("/delete/:groupId");

@@ -1,5 +1,9 @@
 const { httpStatus } = require("../constants/status");
-const { runSelectMany, runQuery } = require("../database/databaseContext");
+const {
+  runSelectMany,
+  runQuery,
+  runSelectOne,
+} = require("../database/databaseContext");
 const { generateKey, validateKey } = require("../utils/keyGenerator");
 
 exports.test = async (req, res) => {
@@ -65,7 +69,7 @@ exports.getGroups = async (req, res) => {
     console.error(error);
     return res
       .status(httpStatus.INTERNAL_SERVER_ERROR)
-      .json({ error: error.message });
+      .json({ message: error.message });
   }
 };
 
@@ -73,4 +77,33 @@ exports.getGroups = async (req, res) => {
  * GET
  * gets information of a group
  */
-exports.getGroup = async (req, res) => {};
+exports.getGroup = async (req, res) => {
+  try {
+    const { groupId } = req.params;
+
+    if (!groupId)
+      return res
+        .status(httpStatus.NOT_ALLOWED)
+        .json({ message: "Group Id is missing" });
+
+    const group = await runSelectOne(
+      `
+      SELECT * FROM item_group
+      WHERE group_id = ?
+      `,
+      [groupId]
+    );
+
+    if (!group)
+      return res
+        .status(httpStatus.NOT_FOUND)
+        .json({ message: `Item group with Id ${groupId} not found` });
+
+    return res.status(httpStatus.OK).json({ ...group });
+  } catch (err) {
+    console.error(err);
+    return res
+      .status(httpStatus.INTERNAL_SERVER_ERROR)
+      .json({ error: error.message });
+  }
+};
