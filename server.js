@@ -14,6 +14,7 @@ app.use(express.json());
 app.use("/v1/item", require("./routes/item"));
 app.use("/v1/inventory", require("./routes/inventory"));
 app.use("/v1/group", require("./routes/group"));
+app.use("/v1/account", require("./routes/account"));
 app.use("/v1/database", require("./routes/database"));
 // test
 app.use("/v1/test", require("./routes/test"));

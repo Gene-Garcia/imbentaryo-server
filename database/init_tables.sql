@@ -1,6 +1,7 @@
 CREATE TABLE account (
     account_id TEXT PRIMARY KEY,
-    username TEXT NOT NULL
+    username TEXT NOT NULL,
+    password TEXT NOT NULL,
 );
 
 CREATE TABLE item_group (
