@@ -19,7 +19,7 @@ exports.loginUser = async (req, res) => {
     const account = await runSelectOne(
       `
         SELECT
-            username
+            username, account_id
         FROM account
         WHERE
             username = ?
@@ -34,7 +34,9 @@ exports.loginUser = async (req, res) => {
         .status(httpStatus.NOT_ALLOWED)
         .json({ message: "Incorrect username or password" });
 
-    return res.status(httpStatus.OK).json({ message: "Accepted credentials" });
+    return res
+      .status(httpStatus.OK)
+      .json({ message: "Accepted credentials", ...account });
   } catch (err) {
     console.error(err);
     return res
