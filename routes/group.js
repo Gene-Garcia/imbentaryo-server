@@ -7,6 +7,7 @@ const {
   insertGroup,
   getGroup,
   updateGroup,
+  deleteGroup,
 } = require("../controller/group");
 
 // routes
@@ -24,7 +25,7 @@ router.get("/one/:groupId", getGroup);
 router.patch("/update", updateGroup);
 
 // deletes a group
-router.delete("/delete/:groupId");
+router.delete("/delete/:groupId", deleteGroup);
 
 // export
 module.exports = router;

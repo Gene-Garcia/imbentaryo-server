@@ -3,6 +3,7 @@ const {
   runSelectMany,
   runQuery,
   runSelectOne,
+  runMultipleQuery,
 } = require("../database/databaseContext");
 const { generateKey, validateKey } = require("../utils/keyGenerator");
 
@@ -153,6 +154,88 @@ exports.updateGroup = async (req, res) => {
       .json({ message: `Item group ${name} has been updated successfully/` });
   } catch (err) {
     console.error(err);
+    return res
+      .status(httpStatus.INTERNAL_SERVER_ERROR)
+      .json({ message: err.message });
+  }
+};
+
+/*
+ * DELETE
+ * deletes an item group based on group id
+ */
+exports.deleteGroup = async (req, res) => {
+  try {
+    const { groupId } = req.params;
+
+    if (!groupId)
+      return res
+        .status(httpStatus.NOT_ALLOWED)
+        .json({ message: "Group Id of group to delete is missing" });
+
+    // find group first
+    const group = await runSelectOne(
+      `SELECT group_id FROM item_group WHERE group_id = ?`,
+      [groupId]
+    );
+    if (!group)
+      return res
+        .status(httpStatus.NOT_FOUND)
+        .json({ message: "Item group to update was not found. Try again." });
+
+    // delete
+    const deleteInventoryRes = await runQuery(
+      `
+        DELETE FROM inventory
+        WHERE
+          item_id IN (
+            SELECT
+              item_id
+            FROM item
+            WHERE
+              group_id = ?
+          )
+      `,
+      [groupId]
+    );
+    if (!deleteInventoryRes)
+      return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+        message:
+          "Something went wrong in deleting inventory record of items under this item group",
+      });
+
+    const deleteItemRes = await runQuery(
+      `
+        DELETE FROM item
+        WHERE
+          group_id = ?
+      `,
+      [groupId]
+    );
+    if (!deleteItemRes)
+      return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+        message: "Something went wrong in deleting items under this item group",
+      });
+
+    const deleteGroupRes = await runQuery(
+      `
+        DELETE FROM item_group
+        WHERE
+          group_id = ?
+      `,
+      [groupId]
+    );
+
+    if (!deleteGroupRes)
+      return res
+        .status(httpStatus.INTERNAL_SERVER_ERROR)
+        .json({ message: "Unable to delete this group. Try again" });
+
+    return res.status(httpStatus.OK).json({
+      message:
+        "This item group has been deleted along with its items and items' inventory records",
+    });
+  } catch (err) {
     return res
       .status(httpStatus.INTERNAL_SERVER_ERROR)
       .json({ message: err.message });
