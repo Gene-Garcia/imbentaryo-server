@@ -65,6 +65,18 @@ exports.signUpUser = async (req, res) => {
       if (!isPresent) break;
     }
 
+    // check if username is existing
+    const record = await runSelectOne(
+      `
+        SELECT account_id FROM account WHERE username = ?
+        `,
+      [username]
+    );
+    if (record)
+      return res.status(httpStatus.NOT_ALLOWED).json({
+        message: `${username} is already existing. Use another one and try again.`,
+      });
+
     // save credentials
     const insertRes = await runQuery(
       `
