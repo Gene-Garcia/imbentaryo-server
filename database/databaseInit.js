@@ -2,6 +2,57 @@ const { httpStatus } = require("../constants/status");
 const { generateKey, validateKey } = require("../utils/keyGenerator");
 const { runQuery, runMultipleQuery } = require("./databaseContext");
 
+exports.insertAccounts = async (req, res) => {
+  try {
+    let accounts = [
+      {
+        ID: "",
+        USERNAME: "martinnn",
+      },
+      {
+        ID: "",
+        USERNAME: "annajoe",
+      },
+    ];
+
+    // assign keys
+    for (let i = 0; i < accounts.length; i++) {
+      let tempId;
+
+      while (true) {
+        tempId = await generateKey(accounts[i].USERNAME);
+
+        const isPresent = await validateKey(tempId, "account_id", "account");
+        if (!isPresent) break;
+      }
+      accounts[i].ID = tempId;
+    }
+
+    // build array params
+    const arrayParams = [];
+
+    accounts.forEach((account) => {
+      // [ID, USERNAME]
+      arrayParams.push([account.ID, account.USERNAME]);
+    });
+    console.log(arrayParams);
+
+    const insertRes = await runMultipleQuery(
+      `
+      INSERT INTO account(account_id, username) VALUES(?, ?)
+      `,
+      arrayParams
+    );
+
+    return res.status(200).json({ insertRes });
+  } catch (err) {
+    console.error(err);
+    return res
+      .status(httpStatus.INTERNAL_SERVER_ERROR)
+      .json({ message: error.message });
+  }
+};
+
 exports.insertGroups = async (req, res) => {
   let groups = [
     {
@@ -45,13 +96,13 @@ exports.insertGroups = async (req, res) => {
 
     groups.forEach((group) => {
       // [ID, NAME]
-      arrayParams.push([group.ID, group.NAME]);
+      arrayParams.push([group.ID, group.NAME, "7m861t1n1524rn56i52an"]);
     });
     console.log(arrayParams);
 
     const insertRes = await runMultipleQuery(
       `
-      INSERT INTO item_group(group_id, group_name) VALUES(?, ?)
+      INSERT INTO item_group(group_id, group_name, account_id) VALUES(?, ?, ?)
       `,
       arrayParams
     );
@@ -68,7 +119,7 @@ exports.insertItems = async (req, res) => {
   try {
     const items = [
       {
-        ID: "",
+        ID: "1d45ab36194y7ek5or446",
         NAME: "Logitech Ergonomic",
         GROUP_ID: "d3y250a1610b49orek521",
         UNIT_PRICE: Math.floor(Math.random() * 905001) + 5000,
@@ -79,7 +130,7 @@ exports.insertItems = async (req, res) => {
         ),
       },
       {
-        ID: "",
+        ID: "1d45ab36194y7ek5or446",
         NAME: "RAKK Ilis RGB Mechanical Keyboard",
         GROUP_ID: "d3y250a1610b49orek521",
         UNIT_PRICE: Math.floor(Math.random() * 905001) + 5000,
@@ -91,7 +142,7 @@ exports.insertItems = async (req, res) => {
       },
 
       {
-        ID: "",
+        ID: "81mom445u4e9s3u56o167",
         NAME: "A4Tech Wired Optical Mouse",
         GROUP_ID: "u145s12muo2e0m5o63402",
         UNIT_PRICE: Math.floor(Math.random() * 905001) + 5000,
@@ -102,7 +153,7 @@ exports.insertItems = async (req, res) => {
         ),
       },
       {
-        ID: "",
+        ID: "81mom445u4e9s3u56o167",
         NAME: "Razer Wireless Gaming RGB Mouse",
         GROUP_ID: "u145s12muo2e0m5o63402",
         UNIT_PRICE: Math.floor(Math.random() * 905001) + 5000,
@@ -114,7 +165,7 @@ exports.insertItems = async (req, res) => {
       },
 
       {
-        ID: "",
+        ID: "o55644nom19rti19634s7",
         NAME: 'Mi 1C 23" Monitor',
         GROUP_ID: "304mr4s0o53t621o21n5i",
         UNIT_PRICE: Math.floor(Math.random() * 905001) + 5000,
@@ -125,7 +176,7 @@ exports.insertItems = async (req, res) => {
         ),
       },
       {
-        ID: "",
+        ID: "o55644nom19rti19634s7",
         NAME: 'Asus 1Q412 22" Thin Bezzel Display',
         GROUP_ID: "304mr4s0o53t621o21n5i",
         UNIT_PRICE: Math.floor(Math.random() * 905001) + 5000,
@@ -137,7 +188,7 @@ exports.insertItems = async (req, res) => {
       },
 
       {
-        ID: "",
+        ID: "ie945l6et6i57s3014v51",
         NAME: "Samsung OLED Thin Curved TV",
         GROUP_ID: "3l45es1iiv4042t2e0561",
         UNIT_PRICE: Math.floor(Math.random() * 905001) + 5000,
@@ -149,7 +200,7 @@ exports.insertItems = async (req, res) => {
       },
 
       {
-        ID: "",
+        ID: "95513n6t17e4sm045su6y",
         NAME: "HP Personal Computer Desktop Set",
         GROUP_ID: "ms6tn654u3y120401es52",
         UNIT_PRICE: Math.floor(Math.random() * 905001) + 5000,
@@ -160,7 +211,7 @@ exports.insertItems = async (req, res) => {
         ),
       },
       {
-        ID: "",
+        ID: "95513n6t17e4sm045su6y",
         NAME: "Asus Gaming RGB Destop",
         GROUP_ID: "ms6tn654u3y120401es52",
         UNIT_PRICE: Math.floor(Math.random() * 905001) + 5000,
@@ -189,11 +240,18 @@ exports.insertItems = async (req, res) => {
     // build sql params
     let arrayParams = [];
     items.forEach(({ ID, NAME, GROUP_ID, UNIT_PRICE, DATE_ADDED }) => {
-      arrayParams.push([ID, NAME, UNIT_PRICE, GROUP_ID, DATE_ADDED]);
+      arrayParams.push([
+        ID,
+        NAME,
+        UNIT_PRICE,
+        GROUP_ID,
+        DATE_ADDED,
+        "7m861t1n1524rn56i52an",
+      ]);
     });
 
     const insertRes = await runMultipleQuery(
-      `INSERT INTO item(item_id, name, unit_price, group_id, date_added) VALUES(?, ?, ?, ?, ?)`,
+      `INSERT INTO item(item_id, name, unit_price, group_id, date_added, account_id) VALUES(?, ?, ?, ?, ?, ?)`,
       arrayParams
     );
 
@@ -210,7 +268,7 @@ exports.insertInventory = async (req, res) => {
     let inventories = [
       {
         ID: "",
-        ITEM_ID: "ei71o034t07l641g16h5c",
+        ITEM_ID: "l4i2t7o0h017150g64c5e",
         QTY: Math.floor(Math.random() * 500) + 1,
         UPDATED: new Date(
           2022,
@@ -220,7 +278,7 @@ exports.insertInventory = async (req, res) => {
       },
       {
         ID: "",
-        ITEM_ID: "z54w120r011eari34767r",
+        ITEM_ID: "4i0ki6125sl1570ark574",
         QTY: Math.floor(Math.random() * 500) + 1,
         UPDATED: new Date(
           2022,
@@ -230,7 +288,7 @@ exports.insertInventory = async (req, res) => {
       },
       {
         ID: "",
-        ITEM_ID: "1434s1u4015s167a0q167",
+        ITEM_ID: "21647c04iw1h5ae6574t0",
         QTY: Math.floor(Math.random() * 500) + 1,
         UPDATED: new Date(
           2022,
@@ -240,7 +298,7 @@ exports.insertInventory = async (req, res) => {
       },
       {
         ID: "",
-        ITEM_ID: "as74a1u0igm6301194s75",
+        ITEM_ID: "r17a6iw154ze020754rr7",
         QTY: Math.floor(Math.random() * 500) + 1,
         UPDATED: new Date(
           2022,
@@ -250,7 +308,7 @@ exports.insertInventory = async (req, res) => {
       },
       {
         ID: "",
-        ITEM_ID: "3401raksk7iil74001615",
+        ITEM_ID: "0508as454qs11u2714716",
         QTY: Math.floor(Math.random() * 500) + 1,
         UPDATED: new Date(
           2022,
@@ -283,11 +341,11 @@ exports.insertInventory = async (req, res) => {
     // build sql command
     let arrayParams = [];
     inventories.forEach(({ ID, ITEM_ID, QTY, UPDATED }) => {
-      arrayParams.push([ID, ITEM_ID, QTY, UPDATED]);
+      arrayParams.push([ID, ITEM_ID, QTY, UPDATED, "7m861t1n1524rn56i52an"]);
     });
 
     const insertRes = await runMultipleQuery(
-      `INSERT INTO inventory(inventory_id, item_Id, quantity, updated) VALUES(?, ?, ?, ?)`,
+      `INSERT INTO inventory(inventory_id, item_Id, quantity, updated, account_id) VALUES(?, ?, ?, ?, ?)`,
       arrayParams
     );
 
