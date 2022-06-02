@@ -7,6 +7,7 @@ const {
   getItems,
   getItem,
   getItemsOfGroup,
+  deleteItemInventory,
 } = require("../controller/item");
 
 // routes
@@ -25,6 +26,9 @@ router.get("/all", getItems);
 
 // get all items of an item group
 router.get("/all/group/:itemGroupId", getItemsOfGroup);
+
+// delete item as well as its inventory
+router.delete("/delete/:itemId", deleteItemInventory);
 
 // export
 module.exports = router;

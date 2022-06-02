@@ -213,3 +213,75 @@ exports.getItem = async (req, res) => {
       .json({ message: error.message });
   }
 };
+
+/*
+ * DELETE
+ * deletes an item as well as its connected inventory record, if there is a record
+ */
+exports.deleteItemInventory = async (req, res) => {
+  try {
+    const { itemId } = req.params;
+
+    if (!itemId)
+      return res.status(httpStatus.NOT_ALLOWED).json({
+        message: "Item id of item to be deleted is missing. Try again.",
+      });
+
+    // validate if existing
+    const item = await runSelectOne(
+      `
+      SELECT item_id
+      FROM item
+      WHERE
+        item_id = ?
+      `,
+      [itemId]
+    );
+
+    if (!item)
+      return res.status(httpStatus.NOT_FOUND).json({
+        message: "This item is not existing, thus, cannot be deleted.",
+      });
+
+    // delete inventory
+    const deleteInventoryRes = await runQuery(
+      `
+      DELETE FROM inventory
+      WHERE
+        item_id = ?
+      `,
+      [itemId]
+    );
+
+    if (!deleteInventoryRes)
+      return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+        message:
+          "Deleting this item was stopped because something went wrong in deleting its inventory. Try again.",
+      });
+
+    // delete item
+    const deleteItemRes = await runQuery(
+      `
+      DELETE FROM item
+      WHERE
+        item_id = ?
+      `,
+      [itemId]
+    );
+
+    if (!deleteItemRes)
+      return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+        message:
+          "Something went wrong in deleting this item but its inventory was already deleted. Try again.",
+      });
+
+    return res.status(httpStatus.OK).json({
+      message: "This item and its inventory has been deleted successfully.",
+    });
+  } catch (err) {
+    console.error(err);
+    return res
+      .status(httpStatus.INTERNAL_SERVER_ERROR)
+      .json({ message: err.message });
+  }
+};
