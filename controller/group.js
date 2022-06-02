@@ -80,7 +80,6 @@ exports.getGroups = async (req, res) => {
 exports.getGroup = async (req, res) => {
   try {
     const { groupId } = req.params;
-
     if (!groupId)
       return res
         .status(httpStatus.NOT_ALLOWED)
@@ -104,6 +103,58 @@ exports.getGroup = async (req, res) => {
     console.error(err);
     return res
       .status(httpStatus.INTERNAL_SERVER_ERROR)
-      .json({ error: error.message });
+      .json({ message: error.message });
+  }
+};
+
+/*
+ * PATCH
+ * updates an item_group record based on group_id
+ */
+exports.updateGroup = async (req, res) => {
+  try {
+    console.log(req.body);
+    const { group_id: id, group_name: name, remarks } = req.body;
+
+    if (!id || !name)
+      return res
+        .status(httpStatus.NOT_ALLOWED)
+        .json({ message: "Group Id and group name is missing" });
+
+    // validate and find the ite group first
+    const group = await runSelectOne(
+      `SELECT group_id FROM item_group WHERE group_id = ?`,
+      [id]
+    );
+    if (!group)
+      return res
+        .status(httpStatus.NOT_FOUND)
+        .json({ message: "Item group to update was not found. Try again." });
+
+    const updateRes = await runQuery(
+      `
+      UPDATE item_group
+      SET
+        group_name = ?,
+        remarks = ?
+      WHERE
+        group_id = ?
+      `,
+      [name, remarks, id]
+    );
+
+    if (!updateRes)
+      return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+        message: "Something went wrong in updating this item group. Try again.",
+      });
+
+    return res
+      .status(httpStatus.OK)
+      .json({ message: `Item group ${name} has been updated successfully/` });
+  } catch (err) {
+    console.error(err);
+    return res
+      .status(httpStatus.INTERNAL_SERVER_ERROR)
+      .json({ message: err.message });
   }
 };
