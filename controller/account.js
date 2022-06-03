@@ -7,6 +7,8 @@ const { validateKey, generateKey } = require("../utils/keyGenerator");
  * Makes database query to validate credentials
  */
 exports.loginUser = async (req, res) => {
+  console.log("Login User");
+
   try {
     const { username, password } = req.body;
 
@@ -50,6 +52,8 @@ exports.loginUser = async (req, res) => {
  * Post/saves credentials of user
  */
 exports.signUpUser = async (req, res) => {
+  console.log("Sign Up User");
+
   try {
     const { username, password } = req.body;
 

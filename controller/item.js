@@ -7,18 +7,15 @@ const {
 const { getAuthorizationHeader } = require("../utils/authorizationHelper");
 const { generateKey, validateKey } = require("../utils/keyGenerator");
 
-exports.test = async (req, res) => {
-  return res.status(httpStatus.OK);
-};
-
 /*
  * POST
  * inserts new item record
  */
 exports.insertItem = async (req, res) => {
+  console.log("Insert Item");
+
   try {
     const accountIdToken = getAuthorizationHeader(req.headers.authorization);
-    console.log(accountIdToken);
 
     const { name, unit_price, stock, remarks, group_id } = req.body;
 
@@ -112,6 +109,7 @@ exports.insertItem = async (req, res) => {
       });
   } catch (e) {
     console.error(e);
+
     return res
       .status(httpStatus.INTERNAL_SERVER_ERROR)
       .json({ message: e.message });
@@ -124,9 +122,10 @@ exports.insertItem = async (req, res) => {
  * it can include item_group and inventory info if stated
  */
 exports.getItems = async (req, res) => {
+  console.log("Get Items");
+
   try {
     const accountIdToken = getAuthorizationHeader(req.headers.authorization);
-    console.log(accountIdToken);
 
     const items = await runSelectMany(
       ` 
@@ -145,10 +144,9 @@ exports.getItems = async (req, res) => {
       [accountIdToken]
     );
 
-    console.log(items);
-
     return res.status(httpStatus.OK).json([...items]);
   } catch (e) {
+    console.error(e);
     return res
       .status(httpStatus.INTERNAL_SERVER_ERROR)
       .json({ message: e.message });
@@ -161,9 +159,9 @@ exports.getItems = async (req, res) => {
  * item group
  */
 exports.getItemsOfGroup = async (req, res) => {
+  console.log("Get Items of Group");
   try {
     const accountIdToken = getAuthorizationHeader(req.headers.authorization);
-    console.log(accountIdToken);
 
     const { itemGroupId } = req.params;
 
@@ -193,6 +191,7 @@ exports.getItemsOfGroup = async (req, res) => {
 
     return res.status(httpStatus.OK).json([...items]);
   } catch (e) {
+    console.error(e);
     return res
       .status(httpStatus.INTERNAL_SERVER_ERROR)
       .json({ message: e.message });
@@ -205,9 +204,10 @@ exports.getItemsOfGroup = async (req, res) => {
  * it can include item_group and inventory info if stated
  */
 exports.getItem = async (req, res) => {
+  console.log("Get Item");
+
   try {
     const accountIdToken = getAuthorizationHeader(req.headers.authorization);
-    console.log(accountIdToken);
 
     const { itemId } = req.params;
 
@@ -257,9 +257,10 @@ exports.getItem = async (req, res) => {
  * deletes an item as well as its connected inventory record, if there is a record
  */
 exports.deleteItemInventory = async (req, res) => {
+  console.log("Delete Item Inventory");
+
   try {
     const accountIdToken = getAuthorizationHeader(req.headers.authorization);
-    console.log(accountIdToken);
 
     const { itemId } = req.params;
 

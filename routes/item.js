@@ -15,9 +15,6 @@ const {
 // add item with information, sometimes with inventory
 router.post("/add", insertItem);
 
-// update details of an item
-router.patch("/update");
-
 // gets item details and inventory information
 router.get("/one/:itemId", getItem);
 

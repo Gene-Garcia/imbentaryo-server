@@ -3,23 +3,19 @@ const {
   runSelectMany,
   runQuery,
   runSelectOne,
-  runMultipleQuery,
 } = require("../database/databaseContext");
 const { getAuthorizationHeader } = require("../utils/authorizationHelper");
 const { generateKey, validateKey } = require("../utils/keyGenerator");
-
-exports.test = async (req, res) => {
-  return res.status(httpStatus.OK);
-};
 
 /*
  * POST
  * creates a new item group
  */
 exports.insertGroup = async (req, res) => {
+  console.log("Insert Group");
+
   try {
     const accountIdToken = getAuthorizationHeader(req.headers.authorization);
-    console.log(accountIdToken);
 
     const { group_name: name, remarks } = req.body;
 
@@ -57,6 +53,8 @@ exports.insertGroup = async (req, res) => {
       .status(httpStatus.CREATED)
       .json({ message: `Item group ${name} added successfully` });
   } catch (error) {
+    console.error(error);
+
     return res
       .status(httpStatus.INTERNAL_SERVER_ERROR)
       .json({ message: error.message });
@@ -68,9 +66,10 @@ exports.insertGroup = async (req, res) => {
  * gets all available groups
  */
 exports.getGroups = async (req, res) => {
+  console.log("Get Groups");
+
   try {
     const accountIdToken = getAuthorizationHeader(req.headers.authorization);
-    console.log(accountIdToken);
 
     const groups = await runSelectMany(
       `
@@ -84,11 +83,10 @@ exports.getGroups = async (req, res) => {
       [accountIdToken]
     );
 
-    console.log(groups);
-
     return res.status(httpStatus.OK).json([...groups]);
   } catch (error) {
     console.error(error);
+
     return res
       .status(httpStatus.INTERNAL_SERVER_ERROR)
       .json({ message: error.message });
@@ -100,9 +98,10 @@ exports.getGroups = async (req, res) => {
  * gets information of a group
  */
 exports.getGroup = async (req, res) => {
+  console.log("Get Group");
+
   try {
     const accountIdToken = getAuthorizationHeader(req.headers.authorization);
-    console.log(accountIdToken);
 
     const { groupId } = req.params;
 
@@ -131,6 +130,7 @@ exports.getGroup = async (req, res) => {
     return res.status(httpStatus.OK).json({ ...group });
   } catch (err) {
     console.error(err);
+
     return res
       .status(httpStatus.INTERNAL_SERVER_ERROR)
       .json({ message: error.message });
@@ -142,9 +142,10 @@ exports.getGroup = async (req, res) => {
  * updates an item_group record based on group_id
  */
 exports.updateGroup = async (req, res) => {
+  console.log("Update Group");
+
   try {
     const accountIdToken = getAuthorizationHeader(req.headers.authorization);
-    console.log(accountIdToken);
 
     const { group_id: id, group_name: name, remarks } = req.body;
 
@@ -204,9 +205,10 @@ exports.updateGroup = async (req, res) => {
  * deletes an item group based on group id
  */
 exports.deleteGroup = async (req, res) => {
+  console.log("Delete Group");
+
   try {
     const accountIdToken = getAuthorizationHeader(req.headers.authorization);
-    console.log(accountIdToken);
 
     const { groupId } = req.params;
 
@@ -294,6 +296,7 @@ exports.deleteGroup = async (req, res) => {
         "This item group has been deleted along with its items and items' inventory records",
     });
   } catch (err) {
+    console.error(err);
     return res
       .status(httpStatus.INTERNAL_SERVER_ERROR)
       .json({ message: err.message });

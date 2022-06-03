@@ -1,17 +1,10 @@
-const { test, updateItemInventory } = require("../controller/inventory");
-
 // package
 const router = require("express").Router();
 
 // controllers
+const { updateItemInventory } = require("../controller/inventory");
 
 // routes
-
-// increase inventory of an item
-router.patch("/increase/:itemId");
-
-// decreases inventory of an item
-router.patch("/decrease/:itemId");
 
 // gets item with inventory information (item details not included)
 router.get("/details/:itemId");

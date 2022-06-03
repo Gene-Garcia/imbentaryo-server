@@ -3,30 +3,15 @@ const { runQuery, runSelectOne } = require("../database/databaseContext");
 const { getAuthorizationHeader } = require("../utils/authorizationHelper");
 const { validateKey, generateKey } = require("../utils/keyGenerator");
 
-exports.test = async (req, res) => {
-  return res.status(httpStatus.OK).json({ data: "succ" });
-};
-
-/*
- * POST or PATCH
- * updates or inserts record of an item_id with new quantity
- */
-exports.upsertInventory = async (req, res) => {};
-
-/*
- * GET
- * gets inventory of an item_id
- */
-exports.getItemInventory = async (req, res) => {};
-
 /*
  * PATCH
  * Updates all data field of item and inventory
  */
 exports.updateItemInventory = async (req, res) => {
+  console.log("Update Item Inventory");
+
   try {
     const accountIdToken = getAuthorizationHeader(req.headers.authorization);
-    console.log(accountIdToken);
 
     const { inventory, item } = req.body;
 
