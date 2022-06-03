@@ -1,5 +1,6 @@
 const { httpStatus } = require("../constants/status");
 const { runQuery, runSelectOne } = require("../database/databaseContext");
+const { getAuthorizationHeader } = require("../utils/authorizationHelper");
 const { validateKey, generateKey } = require("../utils/keyGenerator");
 
 exports.test = async (req, res) => {
@@ -24,8 +25,10 @@ exports.getItemInventory = async (req, res) => {};
  */
 exports.updateItemInventory = async (req, res) => {
   try {
+    const accountIdToken = getAuthorizationHeader(req.headers.authorization);
+    console.log(accountIdToken);
+
     const { inventory, item } = req.body;
-    console.log(req.body);
 
     if (!item.item_id || !item.name || !item.group_id)
       return res
@@ -44,11 +47,20 @@ exports.updateItemInventory = async (req, res) => {
        * so that no new additional inventory record will be created
        */
       const inventoryRecord = await runSelectOne(
-        `SELECT inventory_id FROM inventory WHERE item_id = ?`,
-        [item.item_id]
+        `
+        SELECT 
+          inventory_id 
+        FROM 
+          inventory 
+        WHERE 
+          item_id = ?
+        AND
+          inventory.account_id = ?
+        `,
+        [item.item_id, accountIdToken]
       );
 
-      if (inventory) {
+      if (inventoryRecord) {
         // use the recently queried inventory id
         inventory_id = inventoryRecord.inventory_id;
       } else {
@@ -70,10 +82,21 @@ exports.updateItemInventory = async (req, res) => {
     const upsertInventoryRes = await runQuery(
       `
       REPLACE INTO 
-      inventory(inventory_id, item_id, quantity, updated)
-      VALUES(?, ?, ?, ?)
+        inventory(
+          inventory_id, 
+          item_id, 
+          quantity, 
+          updated,
+          account_id)
+      VALUES(?, ?, ?, ?, ?)
       `,
-      [inventory_id, item.item_id, inventory.quantity, Date.now()]
+      [
+        inventory_id,
+        item.item_id,
+        inventory.quantity,
+        Date.now(),
+        accountIdToken,
+      ]
     );
 
     if (!upsertInventoryRes)
@@ -95,9 +118,19 @@ exports.updateItemInventory = async (req, res) => {
         unit_price = ?,
         remarks = ?,
         group_id = ?
-      WHERE item_id = ?
+      WHERE 
+        item_id = ?
+      AND
+        account_id = ?
       `,
-      [item.name, parsedUnitPrice, item.remarks, item.group_id, item.item_id]
+      [
+        item.name,
+        parsedUnitPrice,
+        item.remarks,
+        item.group_id,
+        item.item_id,
+        accountIdToken,
+      ]
     );
 
     if (!updateItemRes)

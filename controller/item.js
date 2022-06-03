@@ -4,6 +4,7 @@ const {
   runSelectOne,
   runSelectMany,
 } = require("../database/databaseContext");
+const { getAuthorizationHeader } = require("../utils/authorizationHelper");
 const { generateKey, validateKey } = require("../utils/keyGenerator");
 
 exports.test = async (req, res) => {
@@ -16,7 +17,8 @@ exports.test = async (req, res) => {
  */
 exports.insertItem = async (req, res) => {
   try {
-    console.log(req.body);
+    const accountIdToken = getAuthorizationHeader(req.headers.authorization);
+    console.log(accountIdToken);
 
     const { name, unit_price, stock, remarks, group_id } = req.body;
 
@@ -48,10 +50,18 @@ exports.insertItem = async (req, res) => {
     // sql insert
     const isSuccess = await runQuery(
       `
-    INSERT INTO item(item_id, name, unit_price, remarks, group_id, date_added)
-    VALUES(?, ?, ?, ?, ?, ?)
+    INSERT 
+    INTO item(
+      item_id, 
+      name, 
+      unit_price, 
+      remarks, 
+      group_id, 
+      date_added,
+      account_id)
+    VALUES(?, ?, ?, ?, ?, ?, ?)
     `,
-      [item_id, name, unit_price, remarks, group_id, Date.now()]
+      [item_id, name, unit_price, remarks, group_id, Date.now(), accountIdToken]
     );
 
     if (!isSuccess)
@@ -77,10 +87,10 @@ exports.insertItem = async (req, res) => {
       // if duplicates are created then that is an issue of error
       const isSuccessInventory = await runQuery(
         `
-        INSERT INTO inventory(inventory_id, item_id, quantity, updated)
-        VALUES (?, ?, ?, ?)
+        INSERT INTO inventory(inventory_id, item_id, quantity, updated, account_id)
+        VALUES (?, ?, ?, ?, ?)
         `,
-        [inventory_id, item_id, stock, Date.now()]
+        [inventory_id, item_id, stock, Date.now(), accountIdToken]
       );
 
       if (!isSuccessInventory)
@@ -115,15 +125,27 @@ exports.insertItem = async (req, res) => {
  */
 exports.getItems = async (req, res) => {
   try {
+    const accountIdToken = getAuthorizationHeader(req.headers.authorization);
+    console.log(accountIdToken);
+
     const items = await runSelectMany(
       ` 
-        SELECT item.item_id, name, quantity, updated 
+        SELECT 
+          item.item_id, 
+          name, 
+          quantity, 
+          updated, 
+          item.account_id
         FROM item
         LEFT JOIN inventory
-            ON item.item_id = inventory.item_id
+          ON item.item_id = inventory.item_id
+        WHERE 
+          item.account_id = ?
       `,
-      []
+      [accountIdToken]
     );
+
+    console.log(items);
 
     return res.status(httpStatus.OK).json([...items]);
   } catch (e) {
@@ -140,6 +162,9 @@ exports.getItems = async (req, res) => {
  */
 exports.getItemsOfGroup = async (req, res) => {
   try {
+    const accountIdToken = getAuthorizationHeader(req.headers.authorization);
+    console.log(accountIdToken);
+
     const { itemGroupId } = req.params;
 
     if (!itemGroupId)
@@ -149,13 +174,21 @@ exports.getItemsOfGroup = async (req, res) => {
 
     const items = await runSelectMany(
       ` 
-        SELECT item.item_id, name, quantity, updated, item.group_id
+        SELECT 
+          item.item_id, 
+          name, 
+          quantity, 
+          updated, 
+          item.group_id
         FROM item
         LEFT JOIN inventory
             ON item.item_id = inventory.item_id
-        WHERE item.group_id = ?
+        WHERE 
+          item.group_id = ?
+        AND
+          item.account_id = ?
       `,
-      [itemGroupId]
+      [itemGroupId, accountIdToken]
     );
 
     return res.status(httpStatus.OK).json([...items]);
@@ -172,9 +205,10 @@ exports.getItemsOfGroup = async (req, res) => {
  * it can include item_group and inventory info if stated
  */
 exports.getItem = async (req, res) => {
-  //ig551ma261a2ss54u0561
-
   try {
+    const accountIdToken = getAuthorizationHeader(req.headers.authorization);
+    console.log(accountIdToken);
+
     const { itemId } = req.params;
 
     if (!itemId)
@@ -196,9 +230,12 @@ exports.getItem = async (req, res) => {
         ON item.group_id = item_group.group_id
       LEFT JOIN inventory 
         ON item.item_id = inventory.item_id
-      WHERE item.item_id = ?
+      WHERE 
+        item.item_id = ?
+      AND
+        item.account_id = ?
       `,
-      [itemId]
+      [itemId, accountIdToken]
     );
 
     if (!inventory)
@@ -208,6 +245,7 @@ exports.getItem = async (req, res) => {
 
     return res.status(httpStatus.OK).json({ ...inventory });
   } catch (e) {
+    console.error(e);
     return res
       .status(httpStatus.INTERNAL_SERVER_ERROR)
       .json({ message: error.message });
@@ -220,6 +258,9 @@ exports.getItem = async (req, res) => {
  */
 exports.deleteItemInventory = async (req, res) => {
   try {
+    const accountIdToken = getAuthorizationHeader(req.headers.authorization);
+    console.log(accountIdToken);
+
     const { itemId } = req.params;
 
     if (!itemId)
@@ -230,12 +271,15 @@ exports.deleteItemInventory = async (req, res) => {
     // validate if existing
     const item = await runSelectOne(
       `
-      SELECT item_id
+      SELECT 
+        item_id
       FROM item
       WHERE
         item_id = ?
+      AND
+        account_id = ?
       `,
-      [itemId]
+      [itemId, accountIdToken]
     );
 
     if (!item)
@@ -249,8 +293,10 @@ exports.deleteItemInventory = async (req, res) => {
       DELETE FROM inventory
       WHERE
         item_id = ?
+      AND
+        account_id = ?
       `,
-      [itemId]
+      [itemId, accountIdToken]
     );
 
     if (!deleteInventoryRes)
@@ -265,8 +311,10 @@ exports.deleteItemInventory = async (req, res) => {
       DELETE FROM item
       WHERE
         item_id = ?
+      AND
+        account_id = ?
       `,
-      [itemId]
+      [itemId, accountIdToken]
     );
 
     if (!deleteItemRes)

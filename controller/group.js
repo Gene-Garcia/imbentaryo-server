@@ -5,6 +5,7 @@ const {
   runSelectOne,
   runMultipleQuery,
 } = require("../database/databaseContext");
+const { getAuthorizationHeader } = require("../utils/authorizationHelper");
 const { generateKey, validateKey } = require("../utils/keyGenerator");
 
 exports.test = async (req, res) => {
@@ -16,8 +17,10 @@ exports.test = async (req, res) => {
  * creates a new item group
  */
 exports.insertGroup = async (req, res) => {
-  console.log(req.body);
   try {
+    const accountIdToken = getAuthorizationHeader(req.headers.authorization);
+    console.log(accountIdToken);
+
     const { group_name: name, remarks } = req.body;
 
     if (!name)
@@ -35,8 +38,14 @@ exports.insertGroup = async (req, res) => {
     }
 
     const status = await runQuery(
-      `INSERT INTO item_group(group_id, group_name, remarks) VALUES(?, ?, ?)`,
-      [group_id, name, remarks]
+      `
+      INSERT INTO item_group(
+        group_id, 
+        group_name, 
+        remarks,
+        account_id) 
+      VALUES(?, ?, ?, ?)`,
+      [group_id, name, remarks, accountIdToken]
     );
 
     if (!status)
@@ -60,10 +69,22 @@ exports.insertGroup = async (req, res) => {
  */
 exports.getGroups = async (req, res) => {
   try {
+    const accountIdToken = getAuthorizationHeader(req.headers.authorization);
+    console.log(accountIdToken);
+
     const groups = await runSelectMany(
-      `SELECT group_id, group_name FROM item_group`,
-      []
+      `
+      SELECT 
+        group_id, 
+        group_name 
+      FROM item_group
+      WHERE
+        account_id = ?
+      `,
+      [accountIdToken]
     );
+
+    console.log(groups);
 
     return res.status(httpStatus.OK).json([...groups]);
   } catch (error) {
@@ -80,7 +101,11 @@ exports.getGroups = async (req, res) => {
  */
 exports.getGroup = async (req, res) => {
   try {
+    const accountIdToken = getAuthorizationHeader(req.headers.authorization);
+    console.log(accountIdToken);
+
     const { groupId } = req.params;
+
     if (!groupId)
       return res
         .status(httpStatus.NOT_ALLOWED)
@@ -88,10 +113,14 @@ exports.getGroup = async (req, res) => {
 
     const group = await runSelectOne(
       `
-      SELECT * FROM item_group
-      WHERE group_id = ?
+      SELECT * 
+      FROM item_group
+      WHERE 
+        group_id = ?
+      AND
+        account_id = ?
       `,
-      [groupId]
+      [groupId, accountIdToken]
     );
 
     if (!group)
@@ -114,7 +143,9 @@ exports.getGroup = async (req, res) => {
  */
 exports.updateGroup = async (req, res) => {
   try {
-    console.log(req.body);
+    const accountIdToken = getAuthorizationHeader(req.headers.authorization);
+    console.log(accountIdToken);
+
     const { group_id: id, group_name: name, remarks } = req.body;
 
     if (!id || !name)
@@ -124,8 +155,14 @@ exports.updateGroup = async (req, res) => {
 
     // validate and find the ite group first
     const group = await runSelectOne(
-      `SELECT group_id FROM item_group WHERE group_id = ?`,
-      [id]
+      `SELECT 
+        group_id 
+      FROM item_group 
+      WHERE 
+        group_id = ?
+      AND
+        account_id = ?`,
+      [id, accountIdToken]
     );
     if (!group)
       return res
@@ -140,8 +177,10 @@ exports.updateGroup = async (req, res) => {
         remarks = ?
       WHERE
         group_id = ?
+      AND
+        account_id = ?
       `,
-      [name, remarks, id]
+      [name, remarks, id, accountIdToken]
     );
 
     if (!updateRes)
@@ -166,6 +205,9 @@ exports.updateGroup = async (req, res) => {
  */
 exports.deleteGroup = async (req, res) => {
   try {
+    const accountIdToken = getAuthorizationHeader(req.headers.authorization);
+    console.log(accountIdToken);
+
     const { groupId } = req.params;
 
     if (!groupId)
@@ -173,17 +215,25 @@ exports.deleteGroup = async (req, res) => {
         .status(httpStatus.NOT_ALLOWED)
         .json({ message: "Group Id of group to delete is missing" });
 
-    // find group first
+    // find group or validate if existing first
     const group = await runSelectOne(
-      `SELECT group_id FROM item_group WHERE group_id = ?`,
-      [groupId]
+      `
+      SELECT 
+        group_id 
+      FROM item_group 
+      WHERE 
+        group_id = ?
+      AND
+        account_id = ?
+        `,
+      [groupId, accountIdToken]
     );
     if (!group)
       return res
         .status(httpStatus.NOT_FOUND)
         .json({ message: "Item group to update was not found. Try again." });
 
-    // delete
+    // delete inventor record first
     const deleteInventoryRes = await runQuery(
       `
         DELETE FROM inventory
@@ -194,9 +244,11 @@ exports.deleteGroup = async (req, res) => {
             FROM item
             WHERE
               group_id = ?
+            AND
+              account_id = ?
           )
       `,
-      [groupId]
+      [groupId, accountIdToken]
     );
     if (!deleteInventoryRes)
       return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
@@ -204,26 +256,32 @@ exports.deleteGroup = async (req, res) => {
           "Something went wrong in deleting inventory record of items under this item group",
       });
 
+    // delete item record
     const deleteItemRes = await runQuery(
       `
         DELETE FROM item
         WHERE
           group_id = ?
+        AND
+          account_id = ?
       `,
-      [groupId]
+      [groupId, accountIdToken]
     );
     if (!deleteItemRes)
       return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
         message: "Something went wrong in deleting items under this item group",
       });
 
+    // finally delete item group
     const deleteGroupRes = await runQuery(
       `
         DELETE FROM item_group
         WHERE
           group_id = ?
+        AND
+          account_id = ?
       `,
-      [groupId]
+      [groupId, accountIdToken]
     );
 
     if (!deleteGroupRes)
